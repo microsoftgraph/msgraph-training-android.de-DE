@@ -16,7 +16,7 @@ Wenn Sie kein Microsoft-Konto haben, gibt es mehrere Optionen, um ein kostenlose
 
 1. Öffnen Sie einen Browser, und navigieren Sie zum [Azure Active Directory Admin Center](https://aad.portal.azure.com). Melden Sie sich mit einem **persönlichen Konto** (auch: Microsoft-Konto) oder einem **Geschäfts- oder Schulkonto** an.
 
-1. Wählen Sie in der linken Navigationsleiste **Azure Active Directory** aus, und wählen Sie dann **App** -Registrierungen unter **Manage**aus.
+1. Wählen Sie in der linken Navigationsleiste **Azure Active Directory** aus, und wählen Sie dann **App-Registrierungen** unter **Manage**aus.
 
     ![Ein Screenshot der APP-Registrierungen ](../../tutorial/images/aad-portal-app-registrations.png)
 
@@ -32,9 +32,15 @@ Wenn Sie kein Microsoft-Konto haben, gibt es mehrere Optionen, um ein kostenlose
 
     ![Ein Screenshot der Anwendungs-ID der neuen App-Registrierung](../../tutorial/images/aad-application-id.png)
 
-1. Klicken Sie auf den Link Umleitungs- **URI hinzufügen** . Suchen Sie auf der Seite "Umleitungs- **URIs** " den Abschnitt vorgeschlagene Umleitungs- **URIs für öffentliche Clients (Mobile, Desktop)** . Wählen Sie den URI aus, `msal` der mit beginnt, und kopieren Sie ihn, und wählen Sie dann **Speichern**aus. Speichern Sie den kopierten Umleitungs-URI, den Sie im nächsten Schritt benötigen.
+1. Klicken Sie auf den Link **Umleitungs-URI hinzufügen** . Suchen Sie auf der Seite " **Umleitungs-URIs** " den Abschnitt **vorgeschlagene Umleitungs-URIs für öffentliche Clients (Mobile, Desktop)** . Wählen Sie den URI aus, `msal` der mit beginnt, und kopieren Sie ihn, und wählen Sie dann **Speichern**aus. Speichern Sie den kopierten Umleitungs-URI, den Sie im nächsten Schritt benötigen.
 
     ![Screenshot der Seite "Umleitungs-URIs"](../../tutorial/images/aad-redirect-uris.png)
+
+## <a name="configure-the-sample"></a>Konfigurieren des Beispiels
+
+1. Benennen Sie `oauth_strings.xml.example` die Datei `oauth_strings.xml` in die Datei um, und `GraphTutorial/app/src/main/res/values` legen Sie Sie in das Verzeichnis ab.
+1. Bearbeiten Sie `oauth_strings.xml` die Datei, und nehmen Sie die folgenden Änderungen vor.
+    1. Ersetzen `YOUR_APP_ID_HERE` Sie durch die **Anwendungs-ID** , die Sie aus dem Azure-Portal erhalten haben.
 
 ## <a name="run-the-sample"></a>Ausführen des Beispiels
 
