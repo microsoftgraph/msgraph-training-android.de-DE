@@ -31,17 +31,18 @@ Dieses Modul wurde aufgezeichnet und steht im Office-Entwicklungs Kanal YouTube 
 | Rollen                | Autor (en)                                               |
 | -------------------- | ------------------------------------------------------- |
 | Lab-Handbücher/Folien | Andrew Connell (Microsoft MVP, Voitanos) @andrewconnell |
-| Graph Java SDK-Code  | vikyding (Microsoft) @vikyding                          |
+| Code                 | Jason Johnston (Microsoft) @jasonjohmsft                |
 | Sponsor/Support    | Yina Arenas (Microsoft) @yinaa                          |
 
 ## <a name="version-history"></a>Versionsverlauf
 
 | Version | Datum               | Kommentare                                                                   |
 | ------- | ------------------ | -------------------------------------------------------------------------- |
+| 1.9     | 13. November 2019  | Neu erstelltes Projekt mit androidx-Artefakten und neuestem Android SDK, MSAL, Graph SDK |
 | 1,8     | 18. Juni 2019      | Readme in aktualisierte Screencast-Aufzeichnung aktualisiert                           |
 | 1.7     | 30. März 2019     | FY2019Q4-Inhaltsaktualisierung                                                   |
 | 1.6     | 20. Februar 2019  | Im docs.Microsoft.com-Format aktualisiert                                       |
-| 1.5     | 12. Februar 2019  | Aktualisierte mehrere Abhängigkeiten, die vierteljährliche Aktualisierung angewendet wurden                    |
+| 1,5     | 12. Februar 2019  | Aktualisierte mehrere Abhängigkeiten, die vierteljährliche Aktualisierung angewendet wurden                    |
 | 1.4     | 8. November 2018   | Graph-Java-SDK zur GA v1-#a0 angewendet vierteljährliche Aktualisierung aktualisiert                |
 | 1.3     | 12. September 2018 | Ersetzt Graph Android SDK mit Graph Java SDK #a0 angewandte vierteljährliche Aktualisierung |
 | 1.2     | 28. Juni 2018      | Screencast hinzugefügt.                                                          |
@@ -50,6 +51,7 @@ Dieses Modul wurde aufgezeichnet und steht im Office-Entwicklungs Kanal YouTube 
 
 ## <a name="disclaimer"></a>Verzichtserklärung
 
-**Dieser Code wird ohne __ jegliche ausdrückliche oder implizite Gewährleistung bereitgestellt, einschließlich impliziter Garantien für die Eignung für einen bestimmten Zweck, die Marktgängigkeit oder die Nichtverletzung.**
+**Dieser Code wird ohne jegliche ausdrückliche oder implizite _Gewährleistung bereit_ gestellt, einschließlich impliziter Garantien für die Eignung für einen bestimmten Zweck, die Marktgängigkeit oder die Nichtverletzung.**
 
+<!-- markdownlint-disable MD033 -->
 <img src="https://telemetry.sharepointpnp.com/msgraph-training-android" />

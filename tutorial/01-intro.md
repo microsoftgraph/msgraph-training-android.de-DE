@@ -10,7 +10,7 @@ In diesem Lernprogramm erfahren Sie, wie Sie eine Android-App erstellen, die die
 Bevor Sie mit diesem Lernprogramm beginnen, sollten Sie [Android Studio](https://developer.android.com/studio/) auf Ihrem Entwicklungscomputer installiert haben.
 
 > [!NOTE]
-> Dieses Lernprogramm wurde mit der Version 3.3.1 von Android Studio mit dem 1.8.0 JRE und dem Android 9,0 SDK geschrieben. Die Schritte in diesem Leitfaden funktionieren möglicherweise mit anderen Versionen, jedoch nicht getestet.
+> Dieses Lernprogramm wurde mit Android Studio Version 3.5.1 und dem Android 10,0 SDK geschrieben. Die Schritte in diesem Leitfaden funktionieren möglicherweise mit anderen Versionen, jedoch nicht getestet.
 
 ## <a name="watch-the-tutorial"></a>Das Lernprogramm ansehen
 

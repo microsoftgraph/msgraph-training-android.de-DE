@@ -59,7 +59,7 @@ In diesem Abschnitt erweitern Sie die `GraphHelper` Klasse so, dass eine Funktio
     import com.microsoft.graph.models.extensions.Event;
     import com.microsoft.graph.requests.extensions.IEventCollectionPage;
     import com.microsoft.identity.client.AuthenticationCallback;
-    import com.microsoft.identity.client.AuthenticationResult;
+    import com.microsoft.identity.client.IAuthenticationResult;
     import com.microsoft.identity.client.exception.MsalException;
     import java.util.List;
     ```
@@ -114,7 +114,7 @@ In diesem Abschnitt erweitern Sie die `GraphHelper` Klasse so, dass eine Funktio
     }
     ```
 
-1. Überschreiben `onCreate` Sie die- `GraphHelper` Funktion in der-Klasse, um die Ereignisse des Benutzers aus Microsoft Graph abzurufen.
+1. Überschreiben `onCreate` Sie die- `CalendarFragment` Funktion in der-Klasse, um die Ereignisse des Benutzers aus Microsoft Graph abzurufen.
 
     ```java
     @Override
@@ -128,7 +128,7 @@ In diesem Abschnitt erweitern Sie die `GraphHelper` Klasse so, dass eine Funktio
         AuthenticationHelper.getInstance()
                 .acquireTokenSilently(new AuthenticationCallback() {
                     @Override
-                    public void onSuccess(AuthenticationResult authenticationResult) {
+                    public void onSuccess(IAuthenticationResult authenticationResult) {
                         final GraphHelper graphHelper = GraphHelper.getInstance();
 
                         // Get the user's events
@@ -249,16 +249,14 @@ Nun können Sie das JSON-Dump durch etwas ersetzen, um die Ergebnisse auf eine b
     package com.example.graphtutorial;
 
     import android.content.Context;
-    import android.support.annotation.NonNull;
     import android.view.LayoutInflater;
     import android.view.View;
     import android.view.ViewGroup;
     import android.widget.ArrayAdapter;
     import android.widget.TextView;
-
+    import androidx.annotation.NonNull;
     import com.microsoft.graph.models.extensions.DateTimeTimeZone;
     import com.microsoft.graph.models.extensions.Event;
-
     import java.time.LocalDateTime;
     import java.time.ZoneId;
     import java.time.ZonedDateTime;

@@ -2,25 +2,38 @@
 
 In dieser Übung erweitern Sie die Anwendung aus der vorherigen Übung, um die Authentifizierung mit Azure AD zu unterstützen. Dies ist erforderlich, um das erforderliche OAuth-Zugriffstoken zum Aufrufen von Microsoft Graph zu erhalten. Hierzu integrieren Sie die [Microsoft-Authentifizierungsbibliothek (MSAL) für Android](https://github.com/AzureAD/microsoft-authentication-library-for-android) in die Anwendung.
 
-1. Klicken Sie mit der rechten Maustaste auf den Ordner **App/res/Values** , und wählen Sie **neu**und dann **Werte Ressourcendatei**aus.
+1. Klicken Sie mit der rechten Maustaste auf den Ordner **Res** , und wählen Sie **neu**und dann **Android-Ressourcenverzeichnis**aus.
 
-1. Nennen Sie die `oauth_strings` Datei, und wählen Sie **OK**aus.
+1. Ändern Sie den **Ressourcentyp** in, `raw` und wählen Sie **OK**aus.
 
-1. Fügen Sie dem- `resources` Element die folgenden Werte hinzu.
+1. Klicken Sie mit der rechten Maustaste auf den neuen **RAW** -Ordner, und wählen Sie **neu**und dann **Datei**aus.
 
-    ```xml
-    <string name="oauth_app_id">YOUR_APP_ID_HERE</string>
-    <string name="oauth_redirect_uri">msalYOUR_APP_ID_HERE</string>
-    <string-array name="oauth_scopes">
-        <item>User.Read</item>
-        <item>Calendars.Read</item>
-    </string-array>
+1. Nennen Sie die `msal_config.json` Datei, und wählen Sie **OK**aus.
+
+1. Fügen Sie der Datei **msal_config. JSON** Folgendes hinzu.
+
+    ```json
+    {
+      "client_id" : "YOUR_APP_ID_HERE",
+      "redirect_uri" : "msauth://YOUR_PACKAGE_NAME_HERE/callback",
+      "broker_redirect_uri_registered": false,
+      "account_mode": "SINGLE",
+      "authorities" : [
+        {
+          "type": "AAD",
+          "audience": {
+            "type": "AzureADandPersonalMicrosoftAccount"
+          },
+          "default": true
+        }
+      ]
+    }
     ```
 
-    Ersetzen `YOUR_APP_ID_HERE` Sie durch die APP-ID aus Ihrer APP-Registrierung.
+    Ersetzen `YOUR_APP_ID_HERE` Sie durch die APP-ID aus Ihrer APP-Registrierung `YOUR_PACKAGE_NAME_HERE` , und ersetzen Sie durch den Paketnamen Ihres Projekts.
 
 > [!IMPORTANT]
-> Wenn Sie die Quellcodeverwaltung wie git verwenden, wäre es jetzt ein guter Zeitpunkt, die Datei `oauth_strings.xml` aus der Quellcodeverwaltung auszuschließen, um unbeabsichtigtes Auslaufen ihrer APP-ID zu vermeiden.
+> Wenn Sie die Quellcodeverwaltung wie git verwenden, wäre es jetzt ein guter Zeitpunkt, die Datei `msal_config.json` aus der Quellcodeverwaltung auszuschließen, um unbeabsichtigtes Auslaufen ihrer APP-ID zu vermeiden.
 
 ## <a name="implement-sign-in"></a>Implementieren der Anmeldung
 
@@ -36,19 +49,21 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     > [!NOTE]
     > Diese Berechtigungen sind erforderlich, damit die MSAL-Bibliothek den Benutzer authentifizieren muss.
 
-1. Fügen Sie das folgende Element innerhalb `application` des-Elements hinzu.
+1. Fügen Sie das folgende Element innerhalb `application` des-Elements hinzu `YOUR_PACKAGE_NAME_HERE` , und ersetzen Sie die Zeichenfolge durch ihren Paketnamen.
 
     ```xml
-    <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
+    <!--Intent filter to capture authorization code response from the default browser on the
+        device calling back to the app after interactive sign in -->
+    <activity
+        android:name="com.microsoft.identity.client.BrowserTabActivity">
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
-
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-
             <data
-                android:host="auth"
-                android:scheme="@string/oauth_redirect_uri" />
+                android:scheme="msauth"
+                android:host="YOUR_PACKAGE_NAME_HERE"
+                android:path="/callback" />
         </intent-filter>
     </activity>
     ```
@@ -62,23 +77,33 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
 
     import android.app.Activity;
     import android.content.Context;
-    import android.content.Intent;
-
+    import android.util.Log;
     import com.microsoft.identity.client.AuthenticationCallback;
-    import com.microsoft.identity.client.IAccount;
+    import com.microsoft.identity.client.IPublicClientApplication;
+    import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
     import com.microsoft.identity.client.PublicClientApplication;
+    import com.microsoft.identity.client.exception.MsalException;
 
     // Singleton class - the app only needs a single instance
     // of PublicClientApplication
     public class AuthenticationHelper {
         private static AuthenticationHelper INSTANCE = null;
-        private PublicClientApplication mPCA = null;
-        private String[] mScopes;
+        private ISingleAccountPublicClientApplication mPCA = null;
+        private String[] mScopes = { "User.Read", "Calendars.Read" };
 
         private AuthenticationHelper(Context ctx) {
-            String appId = ctx.getResources().getString(R.string.oauth_app_id);
-            mScopes = ctx.getResources().getStringArray(R.array.oauth_scopes);
-            mPCA = new PublicClientApplication(ctx, appId);
+            PublicClientApplication.createSingleAccountPublicClientApplication(ctx, R.raw.msal_config,
+                new IPublicClientApplication.ISingleAccountApplicationCreatedListener() {
+                    @Override
+                    public void onCreated(ISingleAccountPublicClientApplication application) {
+                        mPCA = application;
+                    }
+
+                    @Override
+                    public void onError(MsalException exception) {
+                        Log.e("AUTHHELPER", "Error creating MSAL application", exception);
+                    }
+                });
         }
 
         public static synchronized AuthenticationHelper getInstance(Context ctx) {
@@ -94,45 +119,45 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
         public static synchronized AuthenticationHelper getInstance() {
             if (INSTANCE == null) {
                 throw new IllegalStateException(
-                        "AuthenticationHelper has not been initialized from MainActivity");
+                    "AuthenticationHelper has not been initialized from MainActivity");
             }
 
             return INSTANCE;
         }
 
-        public boolean hasAccount() {
-            return !mPCA.getAccounts().isEmpty();
-        }
-
-        public void handleRedirect(int requestCode, int resultCode, Intent data) {
-            mPCA.handleInteractiveRequestRedirect(requestCode, resultCode, data);
-        }
-
         public void acquireTokenInteractively(Activity activity, AuthenticationCallback callback) {
-            mPCA.acquireToken(activity, mScopes, callback);
+            mPCA.signIn(activity, null, mScopes, callback);
         }
 
         public void acquireTokenSilently(AuthenticationCallback callback) {
-            mPCA.acquireTokenSilentAsync(mScopes, mPCA.getAccounts().get(0), callback);
+            // Get the authority from MSAL config
+            String authority = mPCA.getConfiguration().getDefaultAuthority().getAuthorityURL().toString();
+            mPCA.acquireTokenSilentAsync(mScopes, authority, callback);
         }
 
         public void signOut() {
-            for (IAccount account : mPCA.getAccounts()) {
-                mPCA.removeAccount(account);
-            }
+            mPCA.signOut(new ISingleAccountPublicClientApplication.SignOutCallback() {
+                @Override
+                public void onSignOut() {
+                    Log.d("AUTHHELPER", "Signed out");
+                }
+
+                @Override
+                public void onError(@NonNull MsalException exception) {
+                    Log.d("AUTHHELPER", "MSAL error signing out", exception);
+                }
+            });
         }
     }
     ```
 
-1. Öffnen **** Sie mainrate, und fügen `import` Sie die folgenden Anweisungen hinzu.
+1. Öffnen Sie **mainrate** , und fügen `import` Sie die folgenden Anweisungen hinzu.
 
     ```java
-    import android.content.Intent;
-    import android.support.annotation.Nullable;
     import android.util.Log;
 
     import com.microsoft.identity.client.AuthenticationCallback;
-    import com.microsoft.identity.client.AuthenticationResult;
+    import com.microsoft.identity.client.IAuthenticationResult;
     import com.microsoft.identity.client.exception.MsalClientException;
     import com.microsoft.identity.client.exception.MsalException;
     import com.microsoft.identity.client.exception.MsalServiceException;
@@ -150,17 +175,6 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     ```java
     // Get the authentication helper
     mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
-    ```
-
-1. Fügen Sie eine außer `onActivityResult` Kraft Setzung zum Behandeln von Authentifizierungs Antworten hinzu.
-
-    ```java
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        mAuthHelper.handleRedirect(requestCode, resultCode, data);
-    }
     ```
 
 1. Fügen Sie der `MainActivity` -Klasse die folgenden Funktionen hinzu.
@@ -182,7 +196,7 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
         return new AuthenticationCallback() {
 
             @Override
-            public void onSuccess(AuthenticationResult authenticationResult) {
+            public void onSuccess(IAuthenticationResult authenticationResult) {
                 // Log the token for debug purposes
                 String accessToken = authenticationResult.getAccessToken();
                 Log.d("AUTH", String.format("Access token: %s", accessToken));
@@ -200,8 +214,13 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
                     doInteractiveSignIn();
 
                 } else if (exception instanceof MsalClientException) {
-                    // Exception inside MSAL, more info inside MsalError.java
-                    Log.e("AUTH", "Client error authenticating", exception);
+                    if (exception.getErrorCode() == "no_current_account") {
+                        Log.d("AUTH", "No current account, interactive login required");
+                        doInteractiveSignIn();
+                    } else {
+                        // Exception inside MSAL, more info inside MsalError.java
+                        Log.e("AUTH", "Client error authenticating", exception);
+                    }
                 } else if (exception instanceof MsalServiceException) {
                     // Exception when communicating with the auth server, likely config issue
                     Log.e("AUTH", "Service error authenticating", exception);
@@ -224,11 +243,10 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     ```java
     private void signIn() {
         showProgressBar();
-        if (mAuthHelper.hasAccount()) {
-            doSilentSignIn();
-        } else {
-            doInteractiveSignIn();
-        }
+        // Attempt silent sign in first
+        // if this fails, the callback will handle doing
+        // interactive sign in
+        doSilentSignIn();
     }
 
     private void signOut() {
