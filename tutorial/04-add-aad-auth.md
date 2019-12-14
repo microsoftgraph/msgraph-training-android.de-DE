@@ -258,7 +258,7 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     ```
 
     > [!NOTE]
-    > Beachten Sie, `signIn` dass die Methode zuerst überprüft, ob sich bereits ein Benutzerkonto im MSAL-Cache befindet. Wenn dies der Fall ist, wird versucht, die Token im Hintergrund zu aktualisieren, wodurch vermieden werden muss, dass der Benutzer bei jedem Start der APP auffordern kann.
+    > Beachten Sie, `signIn` dass die-Methode eine unbeaufsichtigte Anmeldung (via `doSilentSignIn`) ausführt. Der Rückruf für diese Methode führt eine interaktive Anmeldung durch, wenn der stumme Fehler auftritt. Dadurch wird vermieden, dass Sie den Benutzer bei jedem Start der APP auffordern müssen.
 
 1. Speichern Sie die Änderungen, und führen Sie die App aus.
 
@@ -396,7 +396,7 @@ In diesem Abschnitt erstellen Sie eine Hilfsklasse für alle Aufrufe von Microso
 
     ```java
     @Override
-    public void onSuccess(AuthenticationResult authenticationResult) {
+    public void onSuccess(IAuthenticationResult authenticationResult) {
         // Log the token for debug purposes
         String accessToken = authenticationResult.getAccessToken();
         Log.d("AUTH", String.format("Access token: %s", accessToken));

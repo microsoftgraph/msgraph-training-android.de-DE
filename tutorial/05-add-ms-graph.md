@@ -45,7 +45,7 @@ In diesem Abschnitt erweitern Sie die `GraphHelper` Klasse so, dass eine Funktio
     > Überprüfen Sie, was `getEvents` der Code in tut.
     >
     > - Die URL, die aufgerufen wird `/v1.0/me/events`.
-    > - Die `select` Funktion schränkt die für die einzelnen Ereignisse zurückgegebenen Felder auf nur #a0 ein, die von der Ansicht tatsächlich verwendet werden.
+    > - Die `select` -Funktion schränkt die für die einzelnen Ereignisse zurückgegebenen Felder auf genau diejenigen ein, die die Ansicht tatsächlich verwendet wird.
     > - Der `QueryOption` Name `orderby` wird verwendet, um die Ergebnisse nach dem Datum und der Uhrzeit der Erstellung zu sortieren, wobei das neueste Element zuerst angezeigt wird.
 
 1. Fügen Sie die `import` folgenden Anweisungen am Anfang der **CalendarFragment** -Datei hinzu.
