@@ -1,45 +1,29 @@
 <!-- markdownlint-disable MD002 MD041 -->
 
-In dieser Übung erweitern Sie die Anwendung aus der vorherigen Übung, um die Authentifizierung mit Azure AD zu unterstützen. Dies ist erforderlich, um das erforderliche OAuth-Zugriffstoken zum Aufrufen von Microsoft Graph zu erhalten. Hierzu integrieren Sie die [Microsoft-Authentifizierungsbibliothek (MSAL) für Android](https://github.com/AzureAD/microsoft-authentication-library-for-android) in die Anwendung.
+In dieser Übung erweitern Sie die Anwendung aus der vorherigen Übung, um die Authentifizierung mit Azure AD zu unterstützen. Dies ist erforderlich, um das erforderliche OAuth-Zugriffstoken zum Aufrufen von Microsoft Graph abzurufen. Dazu integrieren Sie die [Microsoft Authentication Library (MSAL) für Android](https://github.com/AzureAD/microsoft-authentication-library-for-android) in die Anwendung.
 
-1. Klicken Sie mit der rechten Maustaste auf den Ordner **Res** , und wählen Sie **neu**und dann **Android-Ressourcenverzeichnis**aus.
+1. Klicken Sie mit der rechten Maustaste auf den Ordner **"res",** und wählen **Sie "Neu"** und dann **"Android-Ressourcenverzeichnis" aus.**
 
-1. Ändern Sie den **Ressourcentyp** in, `raw` und wählen Sie **OK**aus.
+1. Ändern Sie den **Ressourcentyp,** `raw` und wählen Sie OK **aus.**
 
-1. Klicken Sie mit der rechten Maustaste auf den neuen **RAW** -Ordner, und wählen Sie **neu**und dann **Datei**aus.
+1. Klicken Sie mit der rechten Maustaste auf den neuen **unformatierte** Ordner, und wählen **Sie "Neu"** und dann **"Datei" aus.**
 
-1. Nennen Sie die `msal_config.json` Datei, und wählen Sie **OK**aus.
+1. Benennen Sie die `msal_config.json` Datei, und wählen Sie **OK aus.**
 
-1. Fügen Sie der Datei **msal_config. JSON** Folgendes hinzu.
+1. Fügen Sie der Datei **msal_config.jsA0 Folgendes** hinzu.
 
-    ```json
-    {
-      "client_id" : "YOUR_APP_ID_HERE",
-      "redirect_uri" : "msauth://YOUR_PACKAGE_NAME_HERE/callback",
-      "broker_redirect_uri_registered": false,
-      "account_mode": "SINGLE",
-      "authorities" : [
-        {
-          "type": "AAD",
-          "audience": {
-            "type": "AzureADandPersonalMicrosoftAccount"
-          },
-          "default": true
-        }
-      ]
-    }
-    ```
+    :::code language="json" source="../demo/GraphTutorial/msal_config.json.example":::
 
-    Ersetzen `YOUR_APP_ID_HERE` Sie durch die APP-ID aus Ihrer APP-Registrierung `YOUR_PACKAGE_NAME_HERE` , und ersetzen Sie durch den Paketnamen Ihres Projekts.
+1. Ersetzen Sie die App-ID aus Ihrer App-Registrierung, und ersetzen Sie sie durch den `YOUR_APP_ID_HERE` `com.example.graphtutorial` Paketnamen Ihres Projekts.
 
-> [!IMPORTANT]
-> Wenn Sie die Quellcodeverwaltung wie git verwenden, wäre es jetzt ein guter Zeitpunkt, die Datei `msal_config.json` aus der Quellcodeverwaltung auszuschließen, um unbeabsichtigtes Auslaufen ihrer APP-ID zu vermeiden.
+    > [!IMPORTANT]
+    > Wenn Sie Quellcodeverwaltung wie Git verwenden, wäre es jetzt ein guter Zeitpunkt, die Datei aus der Quellcodeverwaltung auszuschließen, um zu verhindern, dass versehentlich Ihre App-ID durch lecks `msal_config.json` geht.
 
 ## <a name="implement-sign-in"></a>Implementieren der Anmeldung
 
-In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser zur Authentifizierung des Benutzers verwenden, den Umleitungs-URI so registrieren kann, dass er von der APP verarbeitet wird, eine Authentifizierungs Hilfsklasse erstellt und die APP zur Anmeldung und Abmeldung aktualisiert.
+In diesem Abschnitt aktualisieren Sie das Manifest, um MSAL die Verwendung eines Browsers zur Authentifizierung des Benutzers zu ermöglichen, den Umleitungs-URI als von der App behandelt zu registrieren, eine Authentifizierungshilfsklasse zu erstellen und die App so zu aktualisieren, dass sie sich anmeldet und abmeldet.
 
-1. Erweitern Sie den Ordner **App/Manifests** , und öffnen Sie **AndroidManifest. XML**. Fügen Sie die folgenden Elemente oberhalb `application` des-Elements hinzu.
+1. Erweitern Sie **den Ordner "app/manifests",** und öffnen Sie **AndroidManifest.xml**. Fügen Sie die folgenden Elemente über dem Element `application` hinzu.
 
     ```xml
     <uses-permission android:name="android.permission.INTERNET" />
@@ -47,9 +31,9 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     ```
 
     > [!NOTE]
-    > Diese Berechtigungen sind erforderlich, damit die MSAL-Bibliothek den Benutzer authentifizieren muss.
+    > Diese Berechtigungen sind erforderlich, damit die MSAL-Bibliothek den Benutzer authentifiziert.
 
-1. Fügen Sie das folgende Element innerhalb `application` des-Elements hinzu `YOUR_PACKAGE_NAME_HERE` , und ersetzen Sie die Zeichenfolge durch ihren Paketnamen.
+1. Fügen Sie das folgende Element innerhalb des Elements `application` hinzu, und ersetzen Sie die `YOUR_PACKAGE_NAME_HERE` Zeichenfolge durch den Paketnamen.
 
     ```xml
     <!--Intent filter to capture authorization code response from the default browser on the
@@ -68,90 +52,19 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     </activity>
     ```
 
-1. Klicken Sie mit der rechten Maustaste auf den Ordner **App/Java/com. example. graphtutorial** , und wählen Sie dann **neu**und dann **Java-Klasse**aus. Nennen Sie die `AuthenticationHelper` Klasse, und wählen Sie **OK**aus.
+1. Klicken Sie mit der rechten Maustaste auf den Ordner **"app/java/com.example.graphtutorial",** und wählen Sie **"Neu"** und dann **Java Klasse aus.** Ändern Der **Art in** **Schnittstelle**. Benennen Sie die `IAuthenticationHelperCreatedListener` Schnittstelle, und wählen Sie **OK aus.**
 
-1. Öffnen Sie die neue Datei, und ersetzen Sie den Inhalt durch Folgendes.
+1. Öffnen Sie die neue Datei, und ersetzen Sie ihren Inhalt durch Folgendes.
 
-    ```java
-    package com.example.graphtutorial;
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/IAuthenticationHelperCreatedListener.java" id="ListenerSnippet":::
 
-    import android.app.Activity;
-    import android.content.Context;
-    import android.util.Log;
-    import com.microsoft.identity.client.AuthenticationCallback;
-    import com.microsoft.identity.client.IPublicClientApplication;
-    import com.microsoft.identity.client.ISingleAccountPublicClientApplication;
-    import com.microsoft.identity.client.PublicClientApplication;
-    import com.microsoft.identity.client.exception.MsalException;
+1. Klicken Sie mit der rechten Maustaste auf den Ordner **"app/java/com.example.graphtutorial",** und wählen Sie **"Neu"** und dann **Java Klasse aus.** Benennen Sie die `AuthenticationHelper` Klasse, und wählen Sie **OK aus.**
 
-    // Singleton class - the app only needs a single instance
-    // of PublicClientApplication
-    public class AuthenticationHelper {
-        private static AuthenticationHelper INSTANCE = null;
-        private ISingleAccountPublicClientApplication mPCA = null;
-        private String[] mScopes = { "User.Read", "Calendars.Read" };
+1. Öffnen Sie die neue Datei, und ersetzen Sie ihren Inhalt durch Folgendes.
 
-        private AuthenticationHelper(Context ctx) {
-            PublicClientApplication.createSingleAccountPublicClientApplication(ctx, R.raw.msal_config,
-                new IPublicClientApplication.ISingleAccountApplicationCreatedListener() {
-                    @Override
-                    public void onCreated(ISingleAccountPublicClientApplication application) {
-                        mPCA = application;
-                    }
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/AuthenticationHelper.java" id="AuthHelperSnippet":::
 
-                    @Override
-                    public void onError(MsalException exception) {
-                        Log.e("AUTHHELPER", "Error creating MSAL application", exception);
-                    }
-                });
-        }
-
-        public static synchronized AuthenticationHelper getInstance(Context ctx) {
-            if (INSTANCE == null) {
-                INSTANCE = new AuthenticationHelper(ctx);
-            }
-
-            return INSTANCE;
-        }
-
-        // Version called from fragments. Does not create an
-        // instance if one doesn't exist
-        public static synchronized AuthenticationHelper getInstance() {
-            if (INSTANCE == null) {
-                throw new IllegalStateException(
-                    "AuthenticationHelper has not been initialized from MainActivity");
-            }
-
-            return INSTANCE;
-        }
-
-        public void acquireTokenInteractively(Activity activity, AuthenticationCallback callback) {
-            mPCA.signIn(activity, null, mScopes, callback);
-        }
-
-        public void acquireTokenSilently(AuthenticationCallback callback) {
-            // Get the authority from MSAL config
-            String authority = mPCA.getConfiguration().getDefaultAuthority().getAuthorityURL().toString();
-            mPCA.acquireTokenSilentAsync(mScopes, authority, callback);
-        }
-
-        public void signOut() {
-            mPCA.signOut(new ISingleAccountPublicClientApplication.SignOutCallback() {
-                @Override
-                public void onSignOut() {
-                    Log.d("AUTHHELPER", "Signed out");
-                }
-
-                @Override
-                public void onError(@NonNull MsalException exception) {
-                    Log.d("AUTHHELPER", "MSAL error signing out", exception);
-                }
-            });
-        }
-    }
-    ```
-
-1. Öffnen Sie **mainrate** , und fügen `import` Sie die folgenden Anweisungen hinzu.
+1. Öffnen **Sie MainActivity,** und fügen Sie die folgenden Anweisungen `import` hinzu.
 
     ```java
     import android.util.Log;
@@ -164,25 +77,24 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     import com.microsoft.identity.client.exception.MsalUiRequiredException;
     ```
 
-1. Fügen Sie der `MainActivity` -Klasse die folgende Elementeigenschaft hinzu.
+1. Fügen Sie der Klasse die folgenden Membereigenschaften `MainActivity` hinzu.
 
     ```java
     private AuthenticationHelper mAuthHelper = null;
+    private boolean mAttemptInteractiveSignIn = false;
     ```
 
-1. Fügen Sie am Ende der `onCreate` Funktion Folgendes hinzu.
+1. Fügen Sie am Ende der `onCreate`-Funktion den folgenden Code hinzu.
 
-    ```java
-    // Get the authentication helper
-    mAuthHelper = AuthenticationHelper.getInstance(getApplicationContext());
-    ```
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/MainActivity.java" id="InitialLoginSnippet":::
 
-1. Fügen Sie der `MainActivity` -Klasse die folgenden Funktionen hinzu.
+1. Fügen Sie der Klasse die folgenden Funktionen `MainActivity` hinzu.
 
     ```java
     // Silently sign in - used if there is already a
     // user account in the MSAL cache
-    private void doSilentSignIn() {
+    private void doSilentSignIn(boolean shouldAttemptInteractive) {
+        mAttemptInteractiveSignIn = shouldAttemptInteractive;
         mAuthHelper.acquireTokenSilently(getAuthCallback());
     }
 
@@ -200,6 +112,7 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
                 // Log the token for debug purposes
                 String accessToken = authenticationResult.getAccessToken();
                 Log.d("AUTH", String.format("Access token: %s", accessToken));
+
                 hideProgressBar();
 
                 setSignedInState(true);
@@ -211,12 +124,16 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
                 // Check the type of exception and handle appropriately
                 if (exception instanceof MsalUiRequiredException) {
                     Log.d("AUTH", "Interactive login required");
-                    doInteractiveSignIn();
-
-                } else if (exception instanceof MsalClientException) {
-                    if (exception.getErrorCode() == "no_current_account") {
-                        Log.d("AUTH", "No current account, interactive login required");
+                    if (mAttemptInteractiveSignIn) {
                         doInteractiveSignIn();
+                    }
+                } else if (exception instanceof MsalClientException) {
+                    if (exception.getErrorCode() == "no_current_account" ||
+                        exception.getErrorCode() == "no_account_found") {
+                        Log.d("AUTH", "No current account, interactive login required");
+                        if (mAttemptInteractiveSignIn) {
+                            doInteractiveSignIn();
+                        }
                     } else {
                         // Exception inside MSAL, more info inside MsalError.java
                         Log.e("AUTH", "Client error authenticating", exception);
@@ -238,45 +155,28 @@ In diesem Abschnitt aktualisieren Sie das Manifest so, dass MSAL einen Browser z
     }
     ```
 
-1. Ersetzen Sie die `signIn` vorhandenen `signOut` und-Funktionen durch Folgendes.
+1. Ersetzen Sie vorhandene `signIn` und `signOut` Funktionen durch Folgendes.
 
-    ```java
-    private void signIn() {
-        showProgressBar();
-        // Attempt silent sign in first
-        // if this fails, the callback will handle doing
-        // interactive sign in
-        doSilentSignIn();
-    }
-
-    private void signOut() {
-        mAuthHelper.signOut();
-
-        setSignedInState(false);
-        openHomeFragment(mUserName);
-    }
-    ```
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/MainActivity.java" id="SignInAndOutSnippet":::
 
     > [!NOTE]
-    > Beachten Sie, `signIn` dass die-Methode eine unbeaufsichtigte Anmeldung (via `doSilentSignIn`) ausführt. Der Rückruf für diese Methode führt eine interaktive Anmeldung durch, wenn der stumme Fehler auftritt. Dadurch wird vermieden, dass Sie den Benutzer bei jedem Start der APP auffordern müssen.
+    > Beachten Sie, `signIn` dass die Methode eine automatische Anmeldung (über) vor sich `doSilentSignIn` führt. Beim Rückruf für diese Methode wird eine interaktive Anmeldung ausgeführt, wenn die automatische Anmeldung fehlschlägt. Dadurch wird vermieden, dass der Benutzer bei jedem Start der App eine Eingabeaufforderung einfordern muss.
 
 1. Speichern Sie die Änderungen, und führen Sie die App aus.
 
-1. Wenn Sie auf das Menüelement " **Anmelden** " tippen, wird ein Browser mit der Azure AD Anmeldeseite geöffnet. Melden Sie sich mit Ihrem Konto an.
+1. Wenn Sie auf das **Menüelement "Anmelden"** tippen, wird ein Browser zur Azure AD-Anmeldeseite geöffnet. Melden Sie sich mit Ihrem Konto an.
 
-Sobald die APP wieder aufgenommen wurde, sollte ein Zugriffstoken im Debug-Protokoll in Android Studio angezeigt werden.
+Sobald die App fortgesetzt wird, sollte ein Zugriffstoken im Debugprotokoll in Android Studio angezeigt werden.
 
 ![Screenshot des Logcat-Fensters in Android Studio](./images/debugger-access-token.png)
 
-## <a name="get-user-details"></a>Abrufen von Benutzer Details
+## <a name="get-user-details"></a>Benutzerdetails abrufen
 
-In diesem Abschnitt erstellen Sie eine Hilfsklasse für alle Aufrufe von Microsoft Graph und aktualisieren die `MainActivity` Klasse so, dass die neue Klasse verwendet wird, um den angemeldeten Benutzer abzurufen.
+In diesem Abschnitt erstellen Sie eine Hilfsklasse für alle Aufrufe von Microsoft Graph und aktualisieren die Klasse so, dass sie diese neue Klasse verwendet, um den angemeldeten `MainActivity` Benutzer zu erhalten.
 
-1. Klicken Sie mit der rechten Maustaste auf den Ordner **App/Java/com. example. graphtutorial** , und wählen Sie dann **neu**und dann **Java-Klasse**aus.
+1. Klicken Sie mit der rechten Maustaste auf den Ordner **"app/java/com.example.graphtutorial",** und wählen Sie **"Neu"** und dann **Java Klasse aus.** Benennen Sie die `GraphHelper` Klasse, und wählen Sie **OK aus.**
 
-1. Nennen Sie die `GraphHelper` Klasse, und wählen Sie **OK**aus.
-
-1. Öffnen Sie die neue Datei, und ersetzen Sie den Inhalt durch Folgendes.
+1. Öffnen Sie die neue Datei, und ersetzen Sie ihren Inhalt durch Folgendes.
 
     ```java
     package com.example.graphtutorial;
@@ -320,71 +220,32 @@ In diesem Abschnitt erstellen Sie eine Hilfsklasse für alle Aufrufe von Microso
             mAccessToken = accessToken;
 
             // GET /me (logged in user)
-            mClient.me().buildRequest().get(callback);
+            mClient.me().buildRequest()
+                    .select("displayName,mail,mailboxSettings,userPrincipalName")
+                    .get(callback);
         }
     }
     ```
 
     > [!NOTE]
-    > Überprüfen Sie die Funktionsweise dieses Codes.
+    > Überlegen Sie, was dieser Code macht.
     >
-    > - Sie implementiert die `IAuthenticationProvider` Schnittstelle, um das Zugriffstoken in `Authorization` den Header in ausgehenden HTTP-Anforderungen einzufügen.
-    > - Es macht eine `getUser` Funktion verfügbar, um die Informationen des angemeldeten Benutzers vom `/me` Graph-Endpunkt abzurufen.
+    > - Es implementiert die Schnittstelle `IAuthenticationProvider` zum Einfügen des Zugriffstokens in `Authorization` den Header für ausgehende HTTP-Anforderungen.
+    > - Es macht eine Funktion verfügbar, um die Informationen des angemeldeten Benutzers `getUser` vom Graph-Endpunkt `/me` zu erhalten.
 
-1. Fügen Sie die `import` folgenden Anweisungen am Anfang der **Main** -Datei hinzu.
+1. Fügen Sie die `import` folgenden Anweisungen am oberen Rand der Datei **"MainActivity"** hinzu.
 
     ```java
     import com.microsoft.graph.concurrency.ICallback;
     import com.microsoft.graph.core.ClientException;
-    import com.microsoft.graph.models.extensions.IGraphServiceClient;
     import com.microsoft.graph.models.extensions.User;
     ```
 
-1. Fügen Sie der `MainActivity` Klasse die folgende Funktion hinzu, um `ICallback` einen für den Graph-Aufruf zu generieren.
+1. Fügen Sie der Klasse die folgende Funktion `MainActivity` hinzu, um eine für `ICallback` den Graph-Aufruf zu generieren.
 
-    ```java
-    private ICallback<User> getUserCallback() {
-        return new ICallback<User>() {
-            @Override
-            public void success(User user) {
-                Log.d("AUTH", "User: " + user.displayName);
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/MainActivity.java" id="GetUserCallbackSnippet":::
 
-                mUserName = user.displayName;
-                mUserEmail = user.mail == null ? user.userPrincipalName : user.mail;
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideProgressBar();
-
-                        setSignedInState(true);
-                        openHomeFragment(mUserName);
-                    }
-                });
-
-            }
-
-            @Override
-            public void failure(ClientException ex) {
-                Log.e("AUTH", "Error getting /me", ex);
-                mUserName = "ERROR";
-                mUserEmail = "ERROR";
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        hideProgressBar();
-
-                        setSignedInState(true);
-                        openHomeFragment(mUserName);
-                    }
-                });
-            }
-        };
-    }
-    ```
-
-1. Entfernen Sie die folgenden Zeilen, die den Benutzernamen und die e-Mail-Adresse festlegen:
+1. Entfernen Sie die folgenden Zeilen, die den Benutzernamen und die E-Mail festlegen:
 
     ```java
     // For testing
@@ -392,19 +253,8 @@ In diesem Abschnitt erstellen Sie eine Hilfsklasse für alle Aufrufe von Microso
     mUserEmail = "meganb@contoso.com";
     ```
 
-1. Ersetzen Sie `onSuccess` die außer Kraft `AuthenticationCallback` Setzung in der durch Folgendes.
+1. Ersetzen Sie `onSuccess` die Außerkraftsetzung im `AuthenticationCallback` Folgenden durch Folgendes.
 
-    ```java
-    @Override
-    public void onSuccess(IAuthenticationResult authenticationResult) {
-        // Log the token for debug purposes
-        String accessToken = authenticationResult.getAccessToken();
-        Log.d("AUTH", String.format("Access token: %s", accessToken));
+    :::code language="java" source="../demo/GraphTutorial/app/src/main/java/com/example/graphtutorial/MainActivity.java" id="OnSuccessSnippet":::
 
-        // Get Graph client and get user
-        GraphHelper graphHelper = GraphHelper.getInstance();
-        graphHelper.getUser(accessToken, getUserCallback());
-    }
-    ```
-
-Wenn Sie Ihre Änderungen speichern und die APP jetzt ausführen, wird die Benutzeroberfläche nach der Anmeldung mit dem Anzeigenamen und der e-Mail-Adresse des Benutzers aktualisiert.
+1. Speichern Sie die Änderungen, und führen Sie die App aus. Nach der Anmeldung wird die Benutzeroberfläche mit dem Anzeigenamen und der E-Mail-Adresse des Benutzers aktualisiert.
